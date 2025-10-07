@@ -1,0 +1,102 @@
+######################################################################################
+#                                                                                    #
+#   This is an example training config file, which exposes the 3D Classification     #
+#   job loading functionality in ANTIDOTE to the user. The valid YAML at the         #
+#   end of this file can be modified to generate a labeled training dataset from     #
+#   paths to RELION 3D Classification jobs.                                          #
+#                                                                                    #
+#   The minimum information required for generating a training dataset is the path   #
+#   to the classification job and some logic for labeling the particles in that      #
+#   job. These information are specified as follows:                                 #
+#                                                                                    #
+#    jobs:                                                                           #
+#      /path/to/class3D/job/:                                                        #
+#      - label: "some string"                                                        #
+#                                                                                    #
+#   In ANTIDOTE, jobs can be labeled as True or False for training with a string     #
+#   containing a label for the "True" particles or with a Python lambda function.    #
+#   In both cases, each particle is evaluated based on the `feature_index`, which    #
+#   is the rlnImageName field in the 3D Classification metadata by default. The      #
+#   label or lambda function are specified as an attribute for each job in the       #
+#   config file. Here are a few examples:                                            #
+#                                                                                    #
+#    All particles containing the string "True" in the rlnImageName will be True,    #
+#    and all other particles will be False:                                          #
+#                                                                                    #
+#    jobs:                                                                           #
+#      /path/to/dataset1:                                                            #
+#      label: True                                                                   #
+#                                                                                    #
+#    All particles with "apoferritin" in the rlnImageName will be True, all others   #
+#    False:                                                                          #
+#                                                                                    #
+#    jobs:                                                                           #
+#      /path/to/dataset2:                                                            #
+#      label: apoferritin                                                            #
+#                                                                                    #
+#    The following expression will be parsed as a lambda function by pattern         #
+#    matching the initial "lambda x: " string. The following job will be evaluated   #
+#    such that any particle with a cryoSPARC-style name (i.e. containing "J"         #
+#    followed by an arbitrary number of integers) will be evaluated as True          #
+#    particles, with all other particles evaluated as False:                         #
+#                                                                                    #
+#    jobs:                                                                           #
+#      /path/to/dataset3:
+#      lambda: "lambda x: 'J' in x and any(x[i] == 'J' and x[i+1:].isdigit() for i in range(len(x)))"
+#
+#    The following expression is equivalent to specifying apoferritin as the label,  #
+#                                                                                    #
+#    jobs:                                                                           #
+#      /path/to/dataset4:                                                            #
+#      lambda: "lambda x: 'apoferritin' in x"                                        #
+#                                                                                    #
+#   The job's path and the labeling function should be sufficient for most users     #
+#   The YAML parser still provides access to all attributes of ANTIDOTE's handler    #
+#   for RELION 3D Classification. Other available attributes are:                    #
+#                                                                                    #
+#      feature_index (list):         Index feature.                                  #
+#      features (list):              Default features parsed directly from           #
+#                                  RELION data star files.                           #
+#      max_workers (int):            Number of CPUs to use when parsing data.        #
+#      min_iteration (int):          First iteration to include in data.             #
+#      normalize (bool):             Whether or not to apply normalization.          #
+#      normalization_method (str):   Normalization method to use.                    #
+#      outlier_removal_method (str): Outlier removal method to use.                  #
+#      remove_outliers (bool):       Whether or not to apply outlier removal.        #
+#                                                                                    #
+#   Multiple jobs and multiple configs per job can be built into a training dataset  #
+#   using the same YAML syntax. For example, the following config would generate a   #
+#   training dataset containing an instance of job1, job2, and job3 with the         #
+#   default normalization approach, along with an instance of job1 with Robust       #
+#   scaling and an instance of job1 with Standard scaling (5 datasets from 3         #
+#   3D classification runs). Note that for now, the raw data are parsed and          #
+#   processed for each job: config pair for simplicity, under the assumption that    #
+#   most training datasets will utilize a single processing approach for many jobs   #
+#   as opposed to many different processing approaches for a single job.             #
+#                                                                                    #
+#   jobs:                                                                            #
+#     /path/to/class3D/job1/:                                                        #
+#       - label: apoferritin                                                         #
+#       - label: apoferritin                                                         #
+#         normalization_method: Robust                                               #
+#       - label: apoferritin                                                         #
+#         normalization_method: Standard                                             #
+#                                                                                    #
+#     /path/to/class3D/job2/:                                                        #
+#       - label: apoferritin                                                         #
+#                                                                                    #
+#     /path/to/class3D/job3/:                                                        #
+#       - label: apoferritin                                                         #
+#                                                                                    #
+######################################################################################
+
+jobs:                                        # The 'jobs' header is necessary
+  ./job001/:
+    - label: apoferritin                     # These both evaluate to the same thing
+      normalization_method: MinMax
+    - lambda: "lambda x: 'apoferritin' in x" # This will be evaluated as a lambda func
+      normalization_method: MinMax
+
+  ./job002/:
+    - label: True                            # This will be evaluated as a string
+      remove_outliers: False

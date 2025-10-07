@@ -1,0 +1,21 @@
+repos:
+  # Using this mirror lets us use mypyc-compiled black, which is about 2x faster
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 24.8.0
+    hooks:
+      - id: black
+        language_version: python3.11
+        args:
+          - --verbose
+        exclude: __version__.py
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.1.1
+    hooks:
+    -   id: flake8
+        args:
+          - --count
+          - --select=E9,F63,F7,F82 
+          - --ignore=E501,E203
+          - --show-source 
+          - --statistics 

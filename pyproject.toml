@@ -1,0 +1,61 @@
+[build-system]
+requires = ["setuptools>=75", "setuptools-scm[toml]>=8.1"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "antidote"
+dynamic = ["version"]
+description = "identification of poisonous particles from RELION star files"
+authors = [
+    {name = "Ray Berkeley", email = "rberkele@ucsd.edu"},
+    {name = "Daniel Ji", email = "daji@ucsd.edu"},
+    {name = "Armin Foroughi", email = "arforoughi@ucsd.edu"},
+    {name = "Annapurna Saladi", email = "asaladi@ucsd.edu"}
+]
+license = {text = "GNU General Public License v3 (GPLv3)"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+readme = "README.md"
+dependencies = [
+    "holoviews",
+    "dill",
+    "KDEpy",
+    "keras-tuner",
+    "matplotlib",
+    "matplotlib_venn",
+    "numpy",
+    "pandas",
+    "pyarrow>=14.0.1",
+    "pytest",
+    "pytest-xdist",
+    "pyyaml",
+    "scikit-learn",
+    "starfile",
+    "tables",
+    "tensorflow==2.13",
+    "tqdm",
+    "black",
+    "flake8",
+]
+
+[project.scripts]
+antidote = "antidote.__main__:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+antidote = ["models/**/*"]
+
+[tool.setuptools_scm]
+write_to = "antidote/__version__.py"
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+
+[tool.black]
+line-length = 127
+target_version = ['py311']
