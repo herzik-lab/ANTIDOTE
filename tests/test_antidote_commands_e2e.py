@@ -42,7 +42,7 @@ def check_antidote_inference_run(output_folder, label_field_name="rlnHelicalTrac
 
 def test_basic_antidote_inference_full_run(request):
     output_folder = OUTPUT_FOLDER_PREFIX + request.node.name
-    cmd = f"antidote inference --input {TEST_FOLDER} --output {output_folder} --no-open-report"
+    cmd = f"antidote inference --input {TEST_FOLDER} --output {output_folder}"
     subprocess.check_call(cmd, shell=True)
 
     check_antidote_inference_run(output_folder)

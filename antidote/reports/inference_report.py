@@ -322,7 +322,6 @@ def save_report(
     output_path: Path,
     report_format: str,
     overwrite: bool,
-    no_open_report: bool,
     embed: bool,
     progress: bool,
     report_prefix: str,
@@ -332,10 +331,6 @@ def save_report(
             report_path = output_path / f"antidote_{report_prefix}_report.html"
             logger.info(f"Writing {report_prefix} inference report to {report_path.resolve()}...")
             report.save(report_path, title="ANTIDOTE Inference Report", overwrite=overwrite, embed=embed, progress=progress)
-            if not no_open_report:
-                import webbrowser
-
-                webbrowser.open(report_path.resolve().as_uri())
         case "pdf":
             warnings.warn("PDF report has not been implemented yet")
         case _:
@@ -350,7 +345,6 @@ def generate(
     label_field_name: str,
     report_format: str = "html",
     no_full_report: bool = False,
-    no_open_report: bool = False,
     overwrite: bool = True,
 ) -> None:
     start_time = datetime.datetime.now()
@@ -404,7 +398,6 @@ def generate(
         output_path,
         report_format,
         overwrite,
-        no_open_report,
         embed=False,
         progress=False,
         report_prefix="summary",
@@ -455,7 +448,6 @@ def generate(
             output_path,
             report_format,
             overwrite,
-            no_open_report,
             embed=True,
             progress=False,
             report_prefix="full",

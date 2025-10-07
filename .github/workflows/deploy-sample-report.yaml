@@ -34,7 +34,7 @@ jobs:
 
     - name: Run inference to generate sample report
       run: |
-        antidote inference --input ./tests/data/minimal_job/ --output ./examples/minimal_job_output/ --overwrite --no-open-report
+        antidote inference --input ./tests/data/minimal_job/ --output ./examples/minimal_job_output/ --overwrite
 
     - name: Push report to repository
       run: |

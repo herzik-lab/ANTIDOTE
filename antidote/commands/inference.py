@@ -53,13 +53,6 @@ def add_args(parser):
     )
 
     parser.add_argument(
-        "--no-open-report",
-        action="store_true",
-        default=False,
-        help="Do not open the inference report in a web browser.",
-    )
-
-    parser.add_argument(
         "--max-workers",
         type=int,
         default=None,
@@ -332,7 +325,6 @@ def main(args):
         args.antidote_label_field_name,
         report_format="html",
         no_full_report=args.no_full_report,
-        no_open_report=args.no_open_report,
     )
 
     logger.info("Done!")
