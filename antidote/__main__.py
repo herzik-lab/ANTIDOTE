@@ -3,7 +3,7 @@
 import argparse
 import pathlib
 import logging
-from .__version__ import version as __version__  # versioning is handled by setuptools-scm
+# from .__version__ import version as __version__  # versioning is handled by setuptools-scm
 
 import antidote.commands.tools
 import antidote.commands.inference
@@ -25,16 +25,16 @@ def get_module_name(module) -> str:
 
 
 def main() -> None:
-    print(f"Loading Antidote v{__version__}...")
+    # print(f"Loading Antidote v{__version__}...")
     parser = argparse.ArgumentParser(
         prog="Antidote",
         description="A Neural network Trained In Deleterious ObjecT Elimination",
     )
-    parser.add_argument(
-        "--version",
-        action="version",
-        version="Antidote dev",  # + antidote.__version__
-    )
+    # parser.add_argument(
+    #     "--version",
+    #     action="version",
+    #     version="Antidote dev",  # + antidote.__version__
+    # )
     parser.add_argument(
         "--log-level",
         default="INFO",
