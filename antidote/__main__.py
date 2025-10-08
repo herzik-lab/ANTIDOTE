@@ -3,6 +3,7 @@
 import argparse
 import pathlib
 import logging
+
 # from .__version__ import version as __version__  # versioning is handled by setuptools-scm
 
 import antidote.commands.tools
