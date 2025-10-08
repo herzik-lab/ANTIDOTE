@@ -51,11 +51,13 @@ where = ["."]
 [tool.setuptools.package-data]
 antidote = ["models/**/*"]
 
-[tool.setuptools_scm]
-write_to = "antidote/__version__.py"
-version_scheme = "post-release"
-local_scheme = "no-local-version"
+# disable so install can happen without .git folder
+# [tool.setuptools_scm]
+# write_to = "antidote/__version__.py"
+# version_scheme = "post-release"
+# local_scheme = "no-local-version"
 
 [tool.black]
 line-length = 127
+
 target_version = ['py311']
