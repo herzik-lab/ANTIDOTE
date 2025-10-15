@@ -56,7 +56,7 @@
 #                                                                                    #
 #      feature_index (list):         Index feature.                                  #
 #      features (list):              Default features parsed directly from           #
-#                                  RELION data star files.                           #
+#                                    RELION data star files.                         #
 #      max_workers (int):            Number of CPUs to use when parsing data.        #
 #      min_iteration (int):          First iteration to include in data.             #
 #      normalize (bool):             Whether or not to apply normalization.          #
