@@ -10,14 +10,17 @@
 
 # Table of Contents
 
+- [Table of Contents](#table-of-contents)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
 - [Inference](#inference)
 - [Tools](#tools)
-  - [Adjusting the Cutoff Threshold](#adjusting-the-cutoff-threshold)
-  - [Working with CryoSPARC Job Data](#working-with-cryosparc-job-data)
-  - [Examining Starfile Overlaps (Beta)](#examining-starfile-overlaps-beta)
-  - [Additional Tools and Options](#additional-tools-and-options)
+  - [Adjusting the cutoff threshold](#adjusting-the-cutoff-threshold)
+  - [Working with data from CryoSPARC](#working-with-data-from-cryosparc)
+    - [Extracting particles from CryoSPARC job data](#extracting-particles-from-cryosparc-job-data)
+    - [Re-importing particles into CryoSPARC](#re-importing-particles-into-cryosparc)
+    - [Note on y-axis inversion](#note-on-y-axis-inversion)
+  - [Additional tools and options](#additional-tools-and-options)
 - [Training](#training)
 - [Developing / Contributing](#developing--contributing)
 
@@ -124,15 +127,13 @@ To run inference with ANTIDOTE, pass this directory to ANTIDOTE:
 (antidote) $ antidote inference --input /path/to/relion/Class3D/my_job --output ./my_job_output
 ```
 
-By default, ANTIDOTE will write its prediction score (0 being a deletrious particle and 1 being a true particle) to the `rlnHelicalTrackLength` field of the output starfile. If the `rlnHelicalTrackLength` field already exists, the inference command will fail. To fix this, a user can write the prediction score to a different field, by using the `--antidote-label-field-name` field flag with the desired field name. For example, to write the prediction score to the `rlnAntidotePrediction` field:
+ANTIDOTE takes RELION starfiles as input and generates a starfile containing the same particles as its output. By default, ANTIDOTE writes its per-particle prediction score (0 being a deleterious particle and 1 being a true particle) to the `rlnHelicalTrackLength` field of the output starfile (to facilitate the use of subset selection in RELION). If the `rlnHelicalTrackLength` field already exists, the inference command will fail. To fix this, a user can write the prediction score to a different field, by using the `--antidote-label-field-name` field flag with the desired field name. For example, to write the prediction score to a filed named `AntidotePrediction`:
 
 ```
-(antidote) $ antidote inference --input /path/to/relion/Class3D/my_job --output ./my_job_output --antidote-label-field-name rlnAntidotePrediction
+(antidote) $ antidote inference --input /path/to/relion/Class3D/my_job --output ./my_job_output --antidote-label-field-name AntidotePrediction
 ```
 
-Generating the report can sometimes take awhile. To turn off the generation of the HTML report, use the `--no-report` flag. To turn off the generation of the full report, which contains input data distribution plots (RELION 3D classification metadata), use the `--no-full-report` flag. For example, to turn off both reports:
-
-```
+In addition to starfiles with input particles and their corresponding ANTIDOTE labels, ANTIDOTE generates an HTML report containing information about the 3-D classification and a histogram of the ANTIDOTE predictions. To turn off the generation of the HTML report, use the `--no-report` flag.
 
 Additional options for inference can be found in the help dialog:
 
@@ -144,7 +145,7 @@ Additional options for inference can be found in the help dialog:
 
 ## Adjusting the cutoff threshold
 
-The `split-starfile` tool can be used to adjust the cutoff threshold of the particles chosen by ANTIDOTE. The tool takes a starfile as input and generates two new starfiles: one containing particles with a score above the threshold and one containing particles with a score below the threshold. The default threshold is 0.5, but it can be adjusted using the `-t` flag. For example, to adjust the threshold to 0.7:
+ANTIDOTE uses a threshold of 0.5 by default, and generates a starfile that only contains particles that are scored above that threshold alongside the full starfile with all predictions. If a used wants to manually adjust the threshold (perhaps after viewing the prediction histogram in the HTML report), the `split-starfile` tool can be used. The tool takes a starfile as input, along with a new threshold specified by the `-t` argument, and generates two new starfiles: one containing particles with a score above the threshold and one containing particles with a score below the threshold. For example, to adjust the threshold to 0.7:
 
 ```
 (antidote) $ antidote tools split-starfile -t 0.7 -i /path/to/full_predictions.star
@@ -152,19 +153,18 @@ The `split-starfile` tool can be used to adjust the cutoff threshold of the part
 
 By default, it will split the input starfile by the `rlnHelicalTrackLength` field. To split by a different field, use the `--antidote-label-field-name` flag with the desired field name.
 
-## Working with CryoSPARC job data
+## Working with data from CryoSPARC
 
 ### Extracting particles from CryoSPARC job data
 
-Because ANTIDOTE does not have built-in support to take CryoSPARC job data as input, the user must first convert the CryoSPARC job data to a format that can be used to run RELION 3D Classification, which then can be used as input to ANTIDOTE. The `antidote tools` command provides a tool to convert CryoSPARC job data to RELION 3D Classification input data. Currently, supported CryoSPARC jobs are Select 2D, Extract from Micrographs, Ab-Initio (Beta), and NU-Refine (Non-Uniform Refinement). Note that for Ab-Initio, all particles are included for the 3D Classification input data, regardless of the particle being used, not used, or class. 
+ANTIDOTE operates on metadata from 3-D classification in RELION. If a user wants to apply ANTIDOTE to their particle stack in CryoSPARC, they must first convert the CryoSPARC job data to a format that can be used to run RELION 3-D classification, which then can be used as input to ANTIDOTE. For convenience, we provide a command in `antidote tools` to orchestrate this. CryoSPARC conversion is handled by [pyem](https://github.com/asarnow/pyem) Supported CryoSPARC jobs are Select 2D, Extract from Micrographs, Ab-Initio (Beta), and NU-Refine (Non-Uniform Refinement). Note that for Ab-Initio, all particles are included for the 3-D classification input data, regardless of the particle being used, not used, or class.
 
-To convert CryoSPARC job data to RELION 3D Classification input data, run the following command:
 
 ```
-(antidote) $ antidote tools convert-cryosparc --input /path/to/cryosparc/job/JXXX/ --output /path/to/relion/
+(antidote) $ antidote tools convert-cryosparc --input /path/to/cryosparc/job/JXXX/ --output /path/to/relion/project_dir/
 ```
 
-The `/path/to/relion/` folder should be the RELION project directory where the `relion` command is typically run. A star file will be generated in the user-provided RELION project directory (`JXXX.star`) and micrograph (`.mrcs` / `.mrc`) files will be symlinked to the RELION project directory, which can be used as input to RELION 3D Classification. The user can then run RELION 3D Classification on the converted data and then take the output from RELION 3D Classification and run inference with ANTIDOTE (as described above).
+The `/path/to/relion/project_dir/` folder should be the RELION project directory (where the `relion` command is typically run). A star file will be generated in the user-provided RELION project directory (`JXXX.star`) and micrograph (`.mrcs` / `.mrc`) files will be symlinked to the RELION project directory, which can be used as input to RELION 3-D classification. The user can then run RELION 3-D classification on the converted data and then take the output from RELION 3D Classification and run inference with ANTIDOTE.
 
 ### Re-importing particles into CryoSPARC
 
@@ -172,15 +172,11 @@ After using the `convert-cryosparc` tool and running inference with ANTIDOTE on 
 
 ### Note on y-axis inversion
 
-The `convert-cryosparc` tool **by default inverts the particle coordinate y axis** with the csparc2star.py flag `--inverty`. This is done because CryoSPARC inverts the y axis of RELION imported particles by default, however the input CryoSPARC particles are not inverted when being passed into `antidote tools convert-cryosparc`, and so the y axis must be inverted when converting to RELION format so that the particles are in the correct orientation when importing back into CryoSPARC. To not invert the y axis, the `--no-inverty` flag can be used, e.g.:
+The `convert-cryosparc` tool inverts the particle coordinate y-axis by default (by calling the csparc2star.py flag `--inverty`) to correct for CryoSPARC's y-axis inversion. The default parameters for the `antidote tools convert-cryosparc` command should make particle data from CryoSPARC compatible with RELION. The y-axis inversion can be turned off with the `--no-inverty` argument:
 
 ```
-(antidote) $ antidote tools convert-cryosparc --input /path/to/cryosparc/job_folder --output /path/to/relion/ --no-inverty
+(antidote) $ antidote tools convert-cryosparc --no-inverty --input /path/to/cryosparc/job/JXXX/ --output /path/to/relion/project_dir/
 ```
-
-## Examining starfile overlaps (beta)
-
-Currently in development.
 
 ## Additional tools and options
 
@@ -194,7 +190,7 @@ Additional options for tools can be found in the help dialog:
 
 # Training
 
-We don't expect that training ANTIDOTE-style models will be a common use case, as the models that are provided with ANTIDOTE should be able to generalize to many different datasets. Nevertheless, the training pipeline is included in ANTIDOTE and is fairly straightforward to use. Briefly, you will need a collection of 3D Classification datasets for training. For poisoning, we generate the `True` and `False` particle sets independently and mix them prior to 3D Classification. A string or other unique identifier should be present in the `rlnImageName` field of the starfiles generated by 3D Classification. Then, create a YAML file with the following structure:
+While we do not expect re-training ANTIDOTE models to be a common use-case, the training pipeline is included in ANTIDOTE and is fairly straightforward to use. Briefly, you will need a collection of labeled 3-D Classification datasets for training. For poisoning, we generate the `True` and `False` particle sets independently and mix them prior to 3D Classification. A string or other unique identifier should be present in the `rlnImageName` field of the starfiles generated by 3D Classification. Then, create a YAML file with the following structure:
 
 ```yaml
 jobs:
@@ -202,13 +198,13 @@ jobs:
     /path/to/class3D/job1/:
       - label: true_label
 
-    /path/to/class3D/job1/:
+    /path/to/class3D/job2/:
       - label: true_label
 ```
 
-More options for the input YAML file can be found in this [example file](https://github.com/herzik-lab/ANTIDOTE/blob/main/examples/example_training_config.yaml) in `./examples/`.
+More options for the input YAML file can be found in the [example file](https://github.com/herzik-lab/ANTIDOTE/blob/main/examples/example_training_config.yaml) in `./examples/`.
 
-A series of ANTIDOTE models can be trained directly from the YAML file using the `train` command:
+A series of ANTIDOTE models can be trained directly from the YAML file using the `train` command, which will spawn a hyperparameter search and continue to train the model with the highest score after hyperparameter evaluation:
 
 ```
 (antidote) $ antidote train --from-yaml /path/to/yaml
