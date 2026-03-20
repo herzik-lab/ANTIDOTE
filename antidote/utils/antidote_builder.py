@@ -56,7 +56,7 @@ class AntidoteDataGenerator(keras.utils.Sequence):
 
     def __len__(self):
         logger.debug("__len__ called!")
-        return int(math.ceil(self.nrows / self.batch_size))
+        return int(math.ceil(len(self.indices_original) / self.batch_size))
 
     def __next__(self):
         """
