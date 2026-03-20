@@ -21,7 +21,7 @@ dependencies = [
     "holoviews",
     "dill",
     "KDEpy",
-    "keras-tuner",
+    "keras-tuner<1.4",
     "matplotlib",
     "matplotlib_venn",
     "numpy",
